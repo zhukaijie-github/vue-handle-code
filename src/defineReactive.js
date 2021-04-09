@@ -37,7 +37,7 @@ export default function defineReactive (data, key, val) {
       val = newVal
       // 对新值也要进行observe
       observe(newVal)
-      
+      console.log('通知notify')
       // 通知依赖更新
       dep.notify()
     }

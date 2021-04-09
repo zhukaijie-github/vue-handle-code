@@ -25,7 +25,7 @@ export default class Dep {
     // new Watcher 会执行this.get 方法，这个时候会把 Watcher实例赋值给Dep.target
     if (Dep.target) {
       // watcher 添加Dep实例
-      Dep.target.addDep(this)
+      this.addSubs(Dep.target)
     }
   }
 
@@ -39,3 +39,14 @@ export default class Dep {
 }
 
 Dep.target = null
+const targetStack = []
+
+export function pushTarget (target) {
+  targetStack.push(target)
+  Dep.target = target
+}
+
+export function popTarget () {
+  targetStack.pop()
+  Dep.target = targetStack[targetStack.length - 1]
+}

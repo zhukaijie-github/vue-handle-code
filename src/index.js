@@ -1,4 +1,5 @@
 import observe from './observe'
+import Watcher from './Watcher'
 
 var obj = {
   a: {
@@ -11,8 +12,7 @@ var obj = {
 
 
 observe(obj)
-
-
-console.log(obj.g.push(66))
-console.log(obj.g.push({a:1}))
-console.log(obj.g)
+new Watcher(obj, 'a.m', (n,o) => {
+  console.log('☆',n,o)
+})
+obj.a.m = 88
