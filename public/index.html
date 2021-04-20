@@ -7,7 +7,25 @@
     <title>Document</title>
   </head>
   <body>
-    <div></div>
+    <div id="app"></div>
     <script src="/xuni/bundle.js"></script>
+
+    <script>
+      var app = new ZVue({
+        el: "#app",
+        data: {
+          msg: "Hello World",
+          arr: [1, 2, { a: 1 }],
+          item: {
+            m: {
+              n: {
+                c: 1,
+              },
+            },
+          },
+        },
+      });
+      console.log(app);
+    </script>
   </body>
 </html>
