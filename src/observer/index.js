@@ -4,6 +4,8 @@ import { arrayMethods } from './array'
 import observe from './observe'
 import Dep from './dep'
 
+const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
+
 /*
   Observer 观察者类， 该类的作用是，将对象数据绑定__ob__属性, 属性指向Observer实例对象
   监听观察每个数据变化
@@ -18,8 +20,18 @@ export default class Observer {
     def(value, '__ob__', this)
     // value 对象数据类型有两种，一是对象，二是数组
     if (Array.isArray(value)) {
-      // 是数组，对于数组用个重写7个原型方法来实现响应式数据，将value数组的原型对象指针指向新生成的数组对象
-      value.__proto__ = arrayMethods
+      /*
+          如果是数组，将修改后可以截获响应的数组方法替换掉该数组的原型中的原生方法，达到监听数组数据变化响应的效果。
+      */
+      
+      // 判断当前环境下对象是否含有__proto__属性
+      if ('__proto__' in {}) {
+        // 有, 直接将value的原型替换成arrayMethods
+        protoAugment(value, arrayMethods)
+      } else {
+        // 没有就直接在上面定义（覆盖）相关方法来到达监听数组的效果
+        copyAugment(value, arrayMethods, arrayKeys)
+      }
       this.observeArray(value)
     } else {
       // 对象
@@ -47,3 +59,15 @@ export default class Observer {
   }
 }
 
+
+
+function protoAugment (target, src) {
+  target.__proto__ = src
+}
+
+function copyAugment (target, src, keys) {
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    def(target, key, src[key])
+  }
+}

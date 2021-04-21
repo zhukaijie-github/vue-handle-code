@@ -21,13 +21,17 @@ export default function defineReactive (obj, key, val) {
     return
   }
 
+  // 如果对象之前已经预设了getter 或者 setter，则将其取出来
+  const getter = property && property.get
+  const setter = property && property.set
+
   // 如果只传了前两个参数那么val的值就是当前obj[key]
   if (arguments.length === 2) {
     val = obj[key]
   }
 
 
-  // 如果obj还是对象的话就要在进行观测
+  // 如果对象的子对象也要进行观测
   let childOb = observe(val)
 
   Object.defineProperty(obj, key, {
@@ -35,26 +39,49 @@ export default function defineReactive (obj, key, val) {
     configurable: true, // 可配置
     get: function reactiveGetter () {
       console.log(`访问属性${key}`)
-      // 收集依赖
+      // 如果原本对象拥有getter方法则执行
+      const value = getter ? getter.call(obj) : val
+
+      // Dep.target 全局属性，指向当前正在计算的watcher
       if (Dep.target) {
+        // 收集依赖
         dep.depend()
 
-        // 
         if (childOb) {
+          /*
+            子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个depend中，一个是正在本身闭包中的depend，另一个是子元素的depend
+          */
           childOb.dep.depend()
-          if (Array.isArray(val)) {
-            dependArray(val)
+          if (Array.isArray(value)) {
+            // 是数组则需要对每一个成员都进行依赖收集，如果数组的成员还是数组，则递归。
+            dependArray(value)
           }
         }
       }
-      return val
+      return value
     },
     set: function reactiveSetter (newValue) {
-      if (val === newValue) return
+      // 通过getter方法获取当前值，与新值进行比较，一致则不需要执行下面的操作
+      const value = getter ? getter.call(obj) : val
+
+      if (newValue === value || (newValue !== newValue && value !== value)) {
+        // 如果新值与旧值一样就返回，什么都不做。如果存在NaN 也返回，什么都不做
+        return
+      }
+
       console.log(`设置属性${key}`, newValue)
-      val = newValue
+      if (setter) {
+
+        // 如果原本对象拥有setter方法则执行setter
+
+        setter.call(obj, newValue)
+      } else {
+        val = newValue
+      }
       // 对新值进行观测
-      childOb =  observe(newVal)
+      childOb = observe(newValue)
+      
+      // 通知所有的订阅者watcher
       dep.notify()
     }
   })

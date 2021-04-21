@@ -9,10 +9,14 @@ let uid = 0;
 export default class Watcher {
   constructor(vm, expOrFn, cb) {
     console.log(`生成Watcher实例`)
+    // 实例watcher唯一标识id
     this.id = ++uid;
+    this.cb = cb
+    
     this.deps = []
-    this.newDeps = []
     this.depIds = new Set()
+
+    this.newDeps = []
     this.newDepIds = new Set()
   }
 }
