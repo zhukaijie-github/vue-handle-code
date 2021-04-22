@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  entry: './src/vue.js',
+  entry: './src/zvue.js',
   output: {
     filename: 'bundle.js',
     publicPath: '/xuni/'

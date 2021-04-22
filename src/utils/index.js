@@ -53,3 +53,55 @@ export function remove (arr, item) {
 }
 
 
+/**
+ * 正则是一个特殊的对象
+ * 调用其scource方法可以得到其字符串
+ */
+export const unicodeRegExp = /a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD/
+
+// 检测非点的字符串，正确的需要的是a.b.c.d 这样的
+const bailRE = new RegExp(`[^${unicodeRegExp.source}.$_\\d]`)
+
+/* 
+  parsePath 高阶函数，例如： exp = obj.m.n 
+  {
+    obj: {
+      m : {
+        n: 2
+      } 
+    }
+  }
+
+  一直循环递归获取到n的值
+*/
+export function parsePath (exp) {
+  if (bailRE.test(exp)) {
+    return
+  }
+
+  const expArr = exp.split('.')
+  return function (obj) {
+    for (let i = 0; i < expArr.length; i++) {
+      if (!obj) return
+      obj = obj[expArr[i]]
+    }
+    return obj
+  }
+}
+
+
+/*
+  用于查询dom元素
+*/
+export function query (el) {
+  if (typeof el === 'string') {
+    const selected = document.querySelector(el)
+    if (!selected) {
+      return document.createElement('div')
+    }
+    return selected
+  } else {
+    // 不是字符串那就是dom元素
+    return el
+  }
+}
