@@ -15,7 +15,9 @@ export function createCompilerCreator(baseCompile) {
      * @return {object} compiled
      * */
     function compile (template, options) {
-      const finalOptions = {}
+      const finalOptions = {
+        optimize: true
+      }
       // 执行编译函数，生成ast,render,staticRenderFns
       const compiled = baseCompile(template.trim(), finalOptions)
     }
